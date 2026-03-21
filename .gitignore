@@ -1,14 +1,3 @@
-# Java
-*.class
-
-# IntelliJ
 .idea/
 out/
-*.iml
-
-# Maven
-target/
-
-# Sistema
-.DS_Store
-Thumbs.db
+*.class
