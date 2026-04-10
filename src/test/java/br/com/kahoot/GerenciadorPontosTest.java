@@ -48,4 +48,51 @@ class GerenciadorPontosTest {
             gp.adicionarPontos(5, 5);
         });
     }
+
+    @Test
+    void deveAcumularPontosCorretamente() {
+        String[] jogadores = {"Samuel"};
+        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 1);
+
+        gp.adicionarPontos(0, 5);
+        gp.adicionarPontos(0, 3);
+
+        float esperado = (100 * (15 - 5)) + (100 * (15 - 3));
+        assertEquals(esperado, gp.getPontos(0));
+    }
+
+    @Test
+    void devePermitirPontuacaoNegativaQuandoTempoExcedeLimite() {
+        String[] jogadores = {"Samuel"};
+        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 1);
+
+        gp.adicionarPontos(0, 20);
+
+        float esperado = 100 * (15 - 20);
+        assertEquals(esperado, gp.getPontos(0));
+    }
+
+    @Test
+    void deveRetornarListaDeJogadores() {
+        String[] jogadores = {"Ana", "Carlos"};
+        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 2);
+
+        assertArrayEquals(jogadores, gp.getJogadores());
+    }
+
+    @Test
+    void deveManterPontuacoesIndependentesEntreJogadores() {
+        String[] jogadores = {"Ana", "Carlos"};
+        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 2);
+
+        gp.adicionarPontos(0, 5); // Ana
+        gp.adicionarPontos(1, 10); // Carlos
+
+        float pontosAna = 100 * (15 - 5);
+        float pontosCarlos = 100 * (15 - 10);
+
+        assertEquals(pontosAna, gp.getPontos(0));
+        assertEquals(pontosCarlos, gp.getPontos(1));
+}
+
 }
