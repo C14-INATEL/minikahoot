@@ -68,4 +68,20 @@ class ServidorServiceTest {
 
         verify(socket).getOutputStream();
     }
+
+    @Test
+    void deveAtenderMultiplosClientes() throws Exception {
+
+        ServidorService serviceMock = mock(ServidorService.class);
+
+        Socket socket1 = mock(Socket.class);
+        Socket socket2 = mock(Socket.class);
+
+        // Simulando duas conexões
+        serviceMock.enviarBoasVindas(socket1);
+        serviceMock.enviarBoasVindas(socket2);
+
+        verify(serviceMock, times(1)).enviarBoasVindas(socket1);
+        verify(serviceMock, times(1)).enviarBoasVindas(socket2);
+    }
 }
