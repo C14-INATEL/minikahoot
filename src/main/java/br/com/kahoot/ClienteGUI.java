@@ -15,6 +15,7 @@ import java.net.Socket;
 
 public class ClienteGUI extends Application {
 
+    private TextField nameField;
     private TextField ipField;
     private TextField portField;
     private Button connectButton;
@@ -24,6 +25,7 @@ public class ClienteGUI extends Application {
     private RadioButton[] answerButtons;
     private Button submitButton;
     private Label scoreLabel;
+    private TextArea rankingArea;
 
     private Socket socket;
     private PrintWriter out;
@@ -43,6 +45,8 @@ public class ClienteGUI extends Application {
         root.setPadding(new Insets(20));
 
         // Campos de conexão
+        nameField = new TextField();
+        nameField.setPromptText("Digite seu nome");
         ipField = new TextField("localhost");
         portField = new TextField("12345");
         connectButton = new Button("Conectar");
@@ -64,8 +68,13 @@ public class ClienteGUI extends Application {
         submitButton.setDisable(true);
 
         scoreLabel = new Label("Pontos: 0");
+        rankingArea = new TextArea("Ranking aparecerá aqui");
+        rankingArea.setEditable(false);
+        rankingArea.setWrapText(true);
+        rankingArea.setPrefRowCount(5);
 
         root.getChildren().addAll(
+            new Label("Nome:"), nameField,
             new Label("IP:"), ipField,
             new Label("Porta:"), portField,
             connectButton, statusLabel,
@@ -73,7 +82,8 @@ public class ClienteGUI extends Application {
             questionLabel,
             answerButtons[0], answerButtons[1], answerButtons[2], answerButtons[3],
             submitButton,
-            scoreLabel
+            scoreLabel,
+            new Label("Ranking Top 5:"), rankingArea
         );
 
         Scene scene = new Scene(root, 400, 400);
@@ -82,18 +92,30 @@ public class ClienteGUI extends Application {
     }
 
     void connectToServer() {
+        String playerName = nameField.getText().trim();
+        if (playerName.isEmpty()) {
+            statusLabel.setText("Informe seu nome antes de conectar.");
+            return;
+        }
+
         try {
             socket = new Socket(ipField.getText(), Integer.parseInt(portField.getText()));
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            statusLabel.setText("Conectado");
-            connectButton.setDisable(true);
-            submitButton.setDisable(false);
+            out.println(playerName);
+
+            statusLabel.setText("Conectando...");
 
             // Receber mensagem inicial
             String message = in.readLine();
             Platform.runLater(() -> statusLabel.setText("Servidor: " + message));
+
+            connectButton.setDisable(true);
+            nameField.setDisable(true);
+            ipField.setDisable(true);
+            portField.setDisable(true);
+            submitButton.setDisable(false);
 
             // Receber primeira pergunta
             loadQuestionFromServer();
@@ -109,6 +131,7 @@ public class ClienteGUI extends Application {
             String question = "";
             String[] alternatives = new String[4];
             int altIndex = 0;
+            StringBuilder rankingBuilder = new StringBuilder();
 
             while ((line = in.readLine()) != null) {
                 if (line.startsWith("PERGUNTA:")) {
@@ -121,10 +144,23 @@ public class ClienteGUI extends Application {
                     break;
                 } else if (line.startsWith("FIM_JOGO:")) {
                     final String finalLine = line;
+                    while ((line = in.readLine()) != null && !line.equals("FIM_RANKING")) {
+                        if (line.startsWith("RANKING:")) {
+                            String entry = line.substring(8).replace("|", " - ");
+                            rankingBuilder.append(entry).append("\n");
+                        }
+                    }
+
+                    final String rankingText = rankingBuilder.length() > 0
+                        ? rankingBuilder.toString().trim()
+                        : "Ranking não disponível.";
+
                     Platform.runLater(() -> {
                         questionLabel.setText("Jogo finalizado!");
                         submitButton.setDisable(true);
                         statusLabel.setText("Pontuação final: " + finalLine.substring(9));
+                        scoreLabel.setText("Pontos: " + finalLine.substring(9));
+                        rankingArea.setText(rankingText);
                     });
                     return;
                 }

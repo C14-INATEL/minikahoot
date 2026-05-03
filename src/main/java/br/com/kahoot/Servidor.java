@@ -18,7 +18,12 @@ public class Servidor {
             PrintWriter out = new PrintWriter(cliente.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
 
-            out.println("Bem-vindo ao MiniKahoot!");
+            String playerName = in.readLine();
+            if (playerName == null || playerName.isBlank()) {
+                playerName = "Jogador";
+            }
+
+            out.println("Bem-vindo ao MiniKahoot, " + playerName + "!");
 
             // Criar perguntas
             Perguntas perguntas = new Perguntas();
@@ -26,7 +31,7 @@ public class Servidor {
             perguntas.adicionarPergunta(new Pergunta("Quanto é 2 + 2?", new String[]{"3", "4", "5", "6"}, 1));
             perguntas.adicionarPergunta(new Pergunta("Qual linguagem usamos?", new String[]{"Python", "Java", "C++", "JavaScript"}, 1));
 
-            GerenciadorPontos gp = new GerenciadorPontos(new String[]{"Jogador1"}, 1);
+            GerenciadorPontos gp = new GerenciadorPontos(new String[]{playerName}, 1);
 
             for (int i = 0; i < perguntas.getTotalPerguntas(); i++) {
                 Pergunta p = perguntas.obterPergunta(i);
@@ -54,6 +59,16 @@ public class Servidor {
             }
 
             out.println("FIM_JOGO:" + gp.getPontos(0));
+
+            Ranking ranking = new Ranking("ranking.txt");
+            ranking.load();
+            ranking.adicionarScore(playerName, gp.getPontos(0));
+            ranking.save();
+
+            for (Ranking.Entry entry : ranking.obterTop(5)) {
+                out.println("RANKING:" + entry.getNome() + "|" + entry.getPontos());
+            }
+            out.println("FIM_RANKING");
 
             cliente.close();
             server.close();
