@@ -1,11 +1,11 @@
 package br.com.kahoot;
 
-public class GerenciadorPontos {
+public class GerenciadorDePontos {
 
     private String[] jogadores;
     private float[] pontos;
 
-    public GerenciadorPontos(String[] jogadores, int numJogadores) {
+    public GerenciadorDePontos(String[] jogadores, int numJogadores) {
         this.jogadores = jogadores;
         this.pontos = new float[numJogadores];
 

@@ -8,7 +8,7 @@ class GerenciadorPontosTest {
     @Test
     void deveIniciarComZeroPontos() {
         String[] jogadores = {"Rafa", "João"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 2);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 2);
 
         assertEquals(0, gp.getPontos(0));
         assertEquals(0, gp.getPontos(1));
@@ -17,7 +17,7 @@ class GerenciadorPontosTest {
     @Test
     void deveAdicionarPontosCorretamente() {
         String[] jogadores = {"Rafa"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 1);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 1);
 
         gp.adicionarPontos(0, 5); // 100 * (15 - 5) = 1000
 
@@ -28,11 +28,11 @@ class GerenciadorPontosTest {
     void deveDarMaisPontosParaRespostaRapida() {
         String[] jogadores = {"Rafa"};
 
-        GerenciadorPontos gp1 = new GerenciadorPontos(jogadores, 1);
+        GerenciadorDePontos gp1 = new GerenciadorDePontos(jogadores, 1);
         gp1.adicionarPontos(0, 2);
         float rapido = gp1.getPontos(0);
 
-        GerenciadorPontos gp2 = new GerenciadorPontos(jogadores, 1);
+        GerenciadorDePontos gp2 = new GerenciadorDePontos(jogadores, 1);
         gp2.adicionarPontos(0, 10);
         float lento = gp2.getPontos(0);
 
@@ -42,7 +42,7 @@ class GerenciadorPontosTest {
     @Test
     void deveLancarErroParaIdInvalido() {
         String[] jogadores = {"Rafa"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 1);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 1);
 
         assertThrows(IllegalArgumentException.class, () -> {
             gp.adicionarPontos(5, 5);
@@ -52,7 +52,7 @@ class GerenciadorPontosTest {
     @Test
     void deveAcumularPontosCorretamente() {
         String[] jogadores = {"Samuel"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 1);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 1);
 
         gp.adicionarPontos(0, 5);
         gp.adicionarPontos(0, 3);
@@ -64,7 +64,7 @@ class GerenciadorPontosTest {
     @Test
     void devePermitirPontuacaoNegativaQuandoTempoExcedeLimite() {
         String[] jogadores = {"Samuel"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 1);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 1);
 
         gp.adicionarPontos(0, 20);
 
@@ -75,7 +75,7 @@ class GerenciadorPontosTest {
     @Test
     void deveRetornarListaDeJogadores() {
         String[] jogadores = {"Ana", "Carlos"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 2);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 2);
 
         assertArrayEquals(jogadores, gp.getJogadores());
     }
@@ -83,7 +83,7 @@ class GerenciadorPontosTest {
     @Test
     void deveManterPontuacoesIndependentesEntreJogadores() {
         String[] jogadores = {"Ana", "Carlos"};
-        GerenciadorPontos gp = new GerenciadorPontos(jogadores, 2);
+        GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 2);
 
         gp.adicionarPontos(0, 5); // Ana
         gp.adicionarPontos(1, 10); // Carlos
