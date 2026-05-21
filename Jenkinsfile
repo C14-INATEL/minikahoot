@@ -45,12 +45,5 @@ pipeline {
         failure {
             echo 'Pipeline falhou. Verifique se os testes passaram localmente com mvn test.'
         }
-
-            echo 'Pipeline inicial executado com sucesso: ambiente validado e build Maven aprovado.'
-        }
-
-        failure {
-            echo 'Pipeline inicial falhou. Verifique o console do Jenkins.'
-        }
     }
 }
