@@ -22,9 +22,6 @@ pipeline {
                 sh 'mvn clean compile'
             }
         }
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
 
         stage('Testes Unitarios') {
             steps {
@@ -38,16 +35,10 @@ pipeline {
                 }
             }
         }
-=======
->>>>>>> 7f1e0b033d7a99013b8172236f5e5971b7331613
->>>>>>> Stashed changes
     }
 
     post {
         success {
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
             echo 'Pipeline executado com sucesso: build e testes aprovados.'
         }
 
@@ -55,21 +46,11 @@ pipeline {
             echo 'Pipeline falhou. Verifique se os testes passaram localmente com mvn test.'
         }
 
-=======
->>>>>>> Stashed changes
             echo 'Pipeline inicial executado com sucesso: ambiente validado e build Maven aprovado.'
         }
 
         failure {
             echo 'Pipeline inicial falhou. Verifique o console do Jenkins.'
         }
-
-        always {
-            echo 'Execucao do Guia 01 finalizada.'
-        }
-<<<<<<< Updated upstream
-=======
->>>>>>> 7f1e0b033d7a99013b8172236f5e5971b7331613
->>>>>>> Stashed changes
     }
 }
