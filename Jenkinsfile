@@ -35,15 +35,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Package JAR') {
+            steps {
+                echo 'Gerando pacote JAR do MiniKahoot...'
+                sh 'mvn clean package'
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline executado com sucesso: build e testes aprovados.'
+            echo 'Pipeline executado com sucesso: build, testes e package aprovados.'
         }
 
         failure {
-            echo 'Pipeline falhou. Verifique se os testes passaram localmente com mvn test.'
+            echo 'Pipeline falhou. Verifique build, testes ou package.'
+        }
+
+        always {
+            echo 'Execucao do Guia 03 finalizada.'
         }
     }
 }
