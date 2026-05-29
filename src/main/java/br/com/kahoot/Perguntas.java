@@ -1,6 +1,7 @@
 package br.com.kahoot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Perguntas {
@@ -9,6 +10,7 @@ public class Perguntas {
 
     public Perguntas() {
         this.perguntas = new ArrayList<>();
+        carregarPerguntasIniciais();
     }
 
     public void adicionarPergunta(Pergunta pergunta) {
@@ -30,10 +32,30 @@ public class Perguntas {
     }
 
     public List<Pergunta> obterTodas() {
-        return new ArrayList<>(perguntas);
+        return Collections.unmodifiableList(new ArrayList<>(perguntas));
     }
 
     public void limpar() {
         perguntas.clear();
+    }
+
+    private void carregarPerguntasIniciais() {
+        adicionarPergunta(new Pergunta(
+                "Qual estrutura armazena pares chave-valor em Java?",
+                new String[]{"List", "Set", "Map", "Queue"},
+                2
+        ));
+
+        adicionarPergunta(new Pergunta(
+                "Qual protocolo é usado normalmente para páginas web?",
+                new String[]{"FTP", "HTTP", "SSH", "SMTP"},
+                1
+        ));
+
+        adicionarPergunta(new Pergunta(
+                "Qual palavra-chave cria uma herança em Java?",
+                new String[]{"implements", "extends", "import", "package"},
+                1
+        ));
     }
 }
