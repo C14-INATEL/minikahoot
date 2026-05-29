@@ -1,3 +1,4 @@
+groovy
 pipeline {
     agent any
 
@@ -42,19 +43,60 @@ pipeline {
                 sh 'mvn clean package'
             }
         }
+
+        stage('Relatorios e Artefatos') {
+            steps {
+                echo 'Arquivando artefato JAR...'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+
+                echo 'Garantindo publicacao dos relatorios JUnit...'
+                junit 'target/surefire-reports/*.xml'
+            }
+        }
+
+        stage('Validacao Final') {
+            steps {
+                echo 'Pipeline completo executado.'
+                echo 'Etapas: ambiente, build, testes, package, relatorios e artefatos.'
+                echo "Branch: ${env.BRANCH_NAME}"
+                echo "Build: ${env.BUILD_NUMBER}"
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline executado com sucesso: build, testes e package aprovados.'
+            echo 'Notificacao: pipeline executado com sucesso.'
         }
 
         failure {
-            echo 'Pipeline falhou. Verifique build, testes ou package.'
+            echo 'Notificacao: pipeline falhou.'
         }
 
         always {
-            echo 'Execucao do Guia 03 finalizada.'
+            echo 'Execucao completa do pipeline finalizada.'
         }
+
+        /* ISSO EU ADICIONO QUANDO A GENTE TIVER UM EMAIL FEITO
+        success {
+            echo 'Notificacao: pipeline executado com sucesso.'
+
+            mail to: 'email-do-grupo@exemplo.com',
+                 subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} executado com sucesso",
+                 body: "O pipeline do MiniKahoot foi executado com sucesso. Build, testes, package e publicacao de artefatos passaram."
+        }
+
+        failure {
+            echo 'Notificacao: pipeline falhou.'
+
+            mail to: 'email-do-grupo@exemplo.com',
+                 subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} falhou",
+                 body: "O pipeline do MiniKahoot falhou. Verifique o console do Jenkins para detalhes."
+        }
+        always {
+            echo 'Execucao completa do pipeline finalizada.'
+        }
+        */
     }
 }
+
