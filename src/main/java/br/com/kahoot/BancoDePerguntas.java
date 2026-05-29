@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Perguntas {
+public class BancoDePerguntas {
 
     private List<Pergunta> perguntas;
 
-    public Perguntas() {
+    public BancoDePerguntas() {
         this.perguntas = new ArrayList<>();
         carregarPerguntasIniciais();
     }

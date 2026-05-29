@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-class PerguntasTest {
+class BancoDePerguntasTest {
 
     @Test
     void deveCarregarBancoInicialOrganizado() {
-        Perguntas perguntas = new Perguntas();
+        BancoDePerguntas perguntas = new BancoDePerguntas();
 
         assertEquals(3, perguntas.getTotalPerguntas());
         assertNotNull(perguntas.obterPergunta(0));
@@ -22,7 +22,7 @@ class PerguntasTest {
 
     @Test
     void deveAdicionarPerguntaValida() {
-        Perguntas perguntas = new Perguntas();
+        BancoDePerguntas perguntas = new BancoDePerguntas();
         int totalInicial = perguntas.getTotalPerguntas();
 
         perguntas.adicionarPergunta(new Pergunta(
@@ -36,14 +36,14 @@ class PerguntasTest {
 
     @Test
     void naoDeveAdicionarPerguntaNula() {
-        Perguntas perguntas = new Perguntas();
+        BancoDePerguntas perguntas = new BancoDePerguntas();
 
         assertThrows(IllegalArgumentException.class, () -> perguntas.adicionarPergunta(null));
     }
 
     @Test
     void naoDeveObterPerguntaComIndiceInvalido() {
-        Perguntas perguntas = new Perguntas();
+        BancoDePerguntas perguntas = new BancoDePerguntas();
 
         assertThrows(IllegalArgumentException.class, () -> perguntas.obterPergunta(-1));
         assertThrows(IllegalArgumentException.class, () -> perguntas.obterPergunta(perguntas.getTotalPerguntas()));
@@ -51,7 +51,7 @@ class PerguntasTest {
 
     @Test
     void deveRetornarListaDePerguntasImutavel() {
-        Perguntas perguntas = new Perguntas();
+        BancoDePerguntas perguntas = new BancoDePerguntas();
         List<Pergunta> lista = perguntas.obterTodas();
 
         assertThrows(UnsupportedOperationException.class, () -> lista.add(
@@ -61,7 +61,7 @@ class PerguntasTest {
 
     @Test
     void deveLimparBancoDePerguntas() {
-        Perguntas perguntas = new Perguntas();
+        BancoDePerguntas perguntas = new BancoDePerguntas();
 
         perguntas.limpar();
 
