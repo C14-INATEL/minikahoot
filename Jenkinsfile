@@ -1,4 +1,3 @@
-groovy
 pipeline {
     agent any
 
@@ -72,7 +71,7 @@ pipeline {
         success {
             echo 'Notificacao: pipeline executado com sucesso.'
 
-            mail to: EMAIL_DESTINO,
+            mail to: "${EMAIL_DESTINO}",
                  subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} executado com sucesso",
                  body: "O pipeline do MiniKahoot foi executado com sucesso. Build, testes, package e publicacao de artefatos passaram."
         }
@@ -80,7 +79,7 @@ pipeline {
         failure {
             echo 'Notificacao: pipeline falhou.'
 
-            mail to: EMAIL_DESTINO,
+            mail to: "${EMAIL_DESTINO}",
                  subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} falhou",
                  body: "O pipeline do MiniKahoot falhou. Verifique o console do Jenkins para detalhes."
         }
