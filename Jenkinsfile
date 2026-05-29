@@ -2,6 +2,10 @@ groovy
 pipeline {
     agent any
 
+    environment {
+        EMAIL_DESTINO = 'luis.cortes@ges.inatel.br'
+    }
+
     options {
         timestamps()
         buildDiscarder(logRotator(numToKeepStr: '10'))
@@ -67,21 +71,8 @@ pipeline {
     post {
         success {
             echo 'Notificacao: pipeline executado com sucesso.'
-        }
 
-        failure {
-            echo 'Notificacao: pipeline falhou.'
-        }
-
-        always {
-            echo 'Execucao completa do pipeline finalizada.'
-        }
-
-        /* ISSO EU ADICIONO QUANDO A GENTE TIVER UM EMAIL FEITO
-        success {
-            echo 'Notificacao: pipeline executado com sucesso.'
-
-            mail to: 'email-do-grupo@exemplo.com',
+            mail to: EMAIL_DESTINO,
                  subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} executado com sucesso",
                  body: "O pipeline do MiniKahoot foi executado com sucesso. Build, testes, package e publicacao de artefatos passaram."
         }
@@ -89,14 +80,13 @@ pipeline {
         failure {
             echo 'Notificacao: pipeline falhou.'
 
-            mail to: 'email-do-grupo@exemplo.com',
+            mail to: EMAIL_DESTINO,
                  subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} falhou",
                  body: "O pipeline do MiniKahoot falhou. Verifique o console do Jenkins para detalhes."
         }
         always {
             echo 'Execucao completa do pipeline finalizada.'
         }
-        */
     }
 }
 
