@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EMAIL_DESTINO = 'luis.cortes@ges.inatel.br'
+        EMAIL_DESTINO = 'samuel.ralise@gec.inatel.br'
     }
 
     options {
