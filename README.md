@@ -2,27 +2,58 @@
 
 ## Descrição
 
-Este projeto consiste na implementação de uma aplicação cliente/servidor em Java que simula um sistema básico de comunicação inspirado em plataformas de quiz como o Kahoot. A aplicação utiliza sockets TCP para estabelecer a comunicação entre cliente e servidor.
+Este projeto implementa uma aplicação de quiz cliente/servidor em Java usando sockets TCP e JavaFX.
 
-O servidor é responsável por inicializar a conexão, aguardar a entrada de um cliente e enviar uma mensagem inicial. O cliente, por sua vez, conecta-se ao servidor e exibe a mensagem recebida.
+A nova arquitetura oferece:
 
----
-
-## Objetivo
-
-Desenvolver uma aplicação simples para demonstrar:
-
-* Comunicação entre processos via sockets TCP
-* Implementação de cliente e servidor em Java
-* Troca de mensagens entre aplicações distribuídas
+* Servidor com perguntas de quiz, recebimento do nome do jogador e contagem de pontuação.
+* Cliente gráfico em JavaFX para entrada de nome, seleção de alternativas e exibição de ranking.
+* Persistência de ranking local em arquivo `ranking.txt`.
+* Envio do top 5 melhores jogadores ao final do jogo.
 
 ---
 
-## Tecnologias Utilizadas
+## Arquitetura e Componentes
 
-* Java
-* Sockets TCP (java.net)
-* Streams de entrada e saída
+### `Servidor`
+
+* Classe: `br.com.kahoot.Servidor`
+* Função: inicializa servidor TCP na porta `12345`, aceita um cliente, recebe o nome do jogador, envia perguntas, recebe respostas e atualiza pontuação.
+* Finaliza o jogo enviando um resumo da pontuação e o ranking top 5.
+
+### `ClienteGUI`
+
+* Classe: `br.com.kahoot.ClienteGUI`
+* Função: UI JavaFX para o jogador informar nome, conectar ao servidor, responder perguntas e visualizar a pontuação e o ranking.
+* Exibe campos de nome, IP, porta, status, pergunta, alternativas, pontuação e ranking.
+
+### Modelo de dados
+
+* `br.com.kahoot.Pergunta` - representa uma pergunta, alternativas e resposta correta.
+* `br.com.kahoot.Perguntas` - lista de perguntas do quiz.
+* `br.com.kahoot.GerenciadorPontos` - calcula a pontuação do jogador durante o jogo.
+* `br.com.kahoot.Ranking` - persiste e ordena as pontuações, retornando o top 5.
+
+---
+
+## Funcionamento Atualizado
+
+### Fluxo geral
+
+1. O cliente abre a interface JavaFX.
+2. O jogador informa seu nome, IP e porta.
+3. O cliente se conecta ao servidor e envia o nome.
+4. O servidor responde com boas-vindas e envia perguntas em sequência.
+5. O cliente mostra cada pergunta e envia a resposta selecionada.
+6. Ao final, o servidor calcula a pontuação, salva no ranking e retorna o top 5.
+7. O cliente exibe a pontuação final e o ranking top 5.
+
+### Ranking
+
+* O ranking é armazenado no arquivo `ranking.txt`.
+* Cada entrada tem o formato `Nome|Pontuacao`.
+* O servidor carrega o ranking no início do jogo, adiciona a pontuação atual e salva novamente.
+* O ranking enviado ao cliente inclui os 5 melhores jogadores.
 
 ---
 
@@ -30,62 +61,79 @@ Desenvolver uma aplicação simples para demonstrar:
 
 ```text
 src/
-└── br/
-    └── com/
-        └── kahoot/
-            ├── Servidor.java
-            └── Cliente.java
+└── main/
+    └── java/
+        └── br/
+            └── com/
+                └── kahoot/
+                    ├── ClienteGUI.java
+                    ├── Cliente.java
+                    ├── GerenciadorPontos.java
+                    ├── Pergunta.java
+                    ├── Perguntas.java
+                    ├── Ranking.java
+                    └── Servidor.java
 ```
-
----
-
-## Funcionamento
-
-### Servidor
-
-* Inicia na porta 12345
-* Aguarda a conexão de um cliente
-* Envia uma mensagem de boas-vindas
-* Encerra a conexão após o envio
-
-### Cliente
-
-* Conecta ao servidor via localhost na porta 12345
-* Recebe a mensagem enviada pelo servidor
-* Exibe a mensagem no terminal
-* Encerra a conexão
 
 ---
 
 ## Como Executar
 
-### 1. Compilar os arquivos
+### Pré-requisito
 
-```bash
-javac br/com/kahoot/*.java
+* Java 17
+* Maven instalado
+* Conexão local via `localhost`
+
+### 1. Abrir terminal na pasta do projeto
+
+```powershell
+cd "c:\Users\samur\OneDrive\Documents\Inatel\periodo 08\C14\minikahoot\minikahoot"
 ```
 
-### 2. Executar o servidor
+### 2. Compilar o projeto
 
-```bash
-java br.com.kahoot.Servidor
+```powershell
+mvn compile
 ```
 
-### 3. Executar o cliente
+### 3. Executar o servidor
 
-Em outro terminal:
+```powershell
+mvn exec:java
+```
 
-```bash
-java br.com.kahoot.Cliente
+### 4. Executar o cliente em outro terminal
+
+```powershell
+mvn javafx:run
+```
+
+### 5. Usar o cliente
+
+* Informe o `Nome` antes de se conectar.
+* Use `localhost` e porta `12345`.
+* Clique em `Conectar`.
+* Selecione a alternativa correta e clique em `Responder`.
+* No final do jogo, o cliente mostrará a pontuação e o `Ranking Top 5`.
+
+---
+
+## Testes
+
+Se desejar executar os testes unitários existentes:
+
+```powershell
+mvn test
 ```
 
 ---
 
 ## Observações
 
-* O servidor deve ser executado antes do cliente.
-* A aplicação utiliza comunicação local (localhost).
-* O projeto pode ser expandido para incluir lógica de perguntas e respostas.
+* O servidor deve estar rodando antes de conectar o cliente.
+* O ranking é persistido em `ranking.txt`.
+* O projeto pode ser estendido para suportar vários jogadores simultâneos e interface de servidor mais avançada.
 
 ---
 
