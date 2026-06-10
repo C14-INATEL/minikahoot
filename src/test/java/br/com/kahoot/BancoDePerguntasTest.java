@@ -1,5 +1,6 @@
 package br.com.kahoot;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,13 +12,24 @@ import org.junit.jupiter.api.Test;
 class BancoDePerguntasTest {
 
     @Test
-    void deveCarregarBancoInicialOrganizado() {
+    void deveCarregarTresPerguntasIniciais() {
         BancoDePerguntas perguntas = new BancoDePerguntas();
 
         assertEquals(3, perguntas.getTotalPerguntas());
         assertNotNull(perguntas.obterPergunta(0));
         assertNotNull(perguntas.obterPergunta(1));
         assertNotNull(perguntas.obterPergunta(2));
+    }
+
+    @Test
+    void deveObterPerguntaPorIndiceValido() {
+        BancoDePerguntas perguntas = new BancoDePerguntas();
+
+        Pergunta pergunta = perguntas.obterPergunta(1);
+
+        assertNotNull(pergunta);
+        assertEquals(1, pergunta.getRespostaCorreta());
+        assertArrayEquals(new String[]{"FTP", "HTTP", "SSH", "SMTP"}, pergunta.getAlternativas());
     }
 
     @Test
