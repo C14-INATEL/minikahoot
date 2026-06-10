@@ -1,97 +1,145 @@
-# Mini Kahoot - Aplicação Cliente/Servidor em Java
+# Mini Kahoot
 
-## Descrição
+## Descricao
 
-Este projeto consiste na implementação de uma aplicação cliente/servidor em Java que simula um sistema básico de comunicação inspirado em plataformas de quiz como o Kahoot. A aplicação utiliza sockets TCP para estabelecer a comunicação entre cliente e servidor.
+Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para simular uma comunicacao basica inspirada em plataformas de quiz. O projeto foi organizado com Maven, possui testes unitarios com JUnit 5 e inclui automacao de pipeline com Jenkins e Docker.
 
-O servidor é responsável por inicializar a conexão, aguardar a entrada de um cliente e enviar uma mensagem inicial. O cliente, por sua vez, conecta-se ao servidor e exibe a mensagem recebida.
+## Tecnologias utilizadas
 
----
+- Java 17
+- Maven
+- Sockets TCP (`java.net`)
+- JUnit 5
+- Mockito
+- Jenkins
+- Docker
+- Docker Compose
 
-## Objetivo
-
-Desenvolver uma aplicação simples para demonstrar:
-
-* Comunicação entre processos via sockets TCP
-* Implementação de cliente e servidor em Java
-* Troca de mensagens entre aplicações distribuídas
-
----
-
-## Tecnologias Utilizadas
-
-* Java
-* Sockets TCP (java.net)
-* Streams de entrada e saída
-
----
-
-## Estrutura do Projeto
+## Estrutura do projeto
 
 ```text
-src/
-└── br/
-    └── com/
-        └── kahoot/
-            ├── Servidor.java
-            └── Cliente.java
+.
+|-- Dockerfile.jenkins
+|-- Jenkinsfile
+|-- docker-compose.yml
+|-- pom.xml
+|-- README.md
+`-- src
+    |-- main
+    |   `-- java
+    |       `-- br/com/kahoot
+    |           |-- BancoDePerguntas.java
+    |           |-- Cliente.java
+    |           |-- GerenciadorDePontos.java
+    |           |-- Pergunta.java
+    |           |-- Servidor.java
+    |           `-- ServidorService.java
+    `-- test
+        `-- java
+            `-- br/com/kahoot
+                |-- BancoDePerguntasTest.java
+                |-- GerenciadorPontosTest.java
+                |-- PerguntaTest.java
+                `-- ServidorServiceTest.java
 ```
 
----
+## Componentes principais
 
-## Funcionamento
+- `Servidor`: inicia o servidor TCP na porta `12345`, aguarda conexao de um cliente e envia a mensagem inicial.
+- `Cliente`: conecta ao servidor em `localhost:12345` e exibe a mensagem recebida.
+- `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta.
+- `BancoDePerguntas`: mantem a colecao de perguntas e carrega perguntas iniciais.
+- `GerenciadorDePontos`: controla a pontuacao dos jogadores com base no tempo de resposta.
+- `ServidorService`: concentra a logica de envio da mensagem de boas-vindas via socket.
 
-### Servidor
+## Requisitos
 
-* Inicia na porta 12345
-* Aguarda a conexão de um cliente
-* Envia uma mensagem de boas-vindas
-* Encerra a conexão após o envio
+- Java 17 instalado
+- Maven 3.x instalado
 
-### Cliente
+## Como executar
 
-* Conecta ao servidor via localhost na porta 12345
-* Recebe a mensagem enviada pelo servidor
-* Exibe a mensagem no terminal
-* Encerra a conexão
-
----
-
-## Como Executar
-
-### 1. Compilar os arquivos
+### Compilar o projeto
 
 ```bash
-javac br/com/kahoot/*.java
+mvn clean compile
 ```
 
-### 2. Executar o servidor
+### Executar os testes unitarios
 
 ```bash
-java br.com.kahoot.Servidor
+mvn test
 ```
 
-### 3. Executar o cliente
+### Gerar o pacote da aplicacao
+
+```bash
+mvn clean package
+```
+
+### Executar o servidor
+
+```bash
+mvn exec:java -Dexec.mainClass=br.com.kahoot.Servidor
+```
+
+### Executar o cliente
 
 Em outro terminal:
 
 ```bash
-java br.com.kahoot.Cliente
+mvn exec:java -Dexec.mainClass=br.com.kahoot.Cliente
 ```
 
----
+## Testes
 
-## Observações
+Os testes ficam em `src/test/java/br/com/kahoot` e cobrem as classes principais do dominio e do servico:
 
-* O servidor deve ser executado antes do cliente.
-* A aplicação utiliza comunicação local (localhost).
-* O projeto pode ser expandido para incluir lógica de perguntas e respostas.
+- `PerguntaTest`
+- `BancoDePerguntasTest`
+- `GerenciadorPontosTest`
+- `ServidorServiceTest`
 
----
+## Integracao continua com Jenkins
+
+O projeto possui um `Jenkinsfile` com pipeline para:
+
+- validar o ambiente com Java, Maven e Git
+- compilar o projeto com Maven
+- executar os testes unitarios
+- publicar relatorios JUnit
+- gerar o pacote JAR
+- arquivar os artefatos produzidos
+
+## Ambiente Jenkins com Docker
+
+### `Dockerfile.jenkins`
+
+Cria uma imagem baseada em `jenkins/jenkins:lts-jdk17` com:
+
+- Maven
+- Git
+- Docker CLI
+
+### `docker-compose.yml`
+
+Sobe um servico Jenkins local com:
+
+- porta `8080` para a interface web
+- porta `50000` para agentes Jenkins
+- volume persistente `jenkins_home`
+
+### Subir o Jenkins localmente
+
+```bash
+docker compose up -d
+```
+
+Depois disso, acesse `http://localhost:8080`.
 
 ## Autores
 
-Luís Henrique de Souza Côrtes Moreira - GES 642
-Rafael Mello Barbosa da Silva - GES 609
-Gabriel Bissacot Fraguas - GEC 1363
-Samuel Almeida Ralise - GEC 1993
+- Luis Henrique de Souza Cortes Moreira - GES 642
+- Rafael Mello Barbosa da Silva - GES 609
+- Gabriel Bissacot Fraguas - GEC 1363
+- Samuel Almeida Ralise - GEC 1993
