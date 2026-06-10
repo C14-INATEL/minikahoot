@@ -38,7 +38,7 @@ Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para si
         `-- java
             `-- br/com/kahoot
                 |-- BancoDePerguntasTest.java
-                |-- GerenciadorPontosTest.java
+                |-- GerenciadorDePontosTest.java
                 |-- PerguntaTest.java
                 `-- ServidorServiceTest.java
 ```
@@ -47,7 +47,7 @@ Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para si
 
 - `Servidor`: inicia o servidor TCP na porta `12345`, aguarda conexao de um cliente e envia a mensagem inicial.
 - `Cliente`: conecta ao servidor em `localhost:12345` e exibe a mensagem recebida.
-- `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta.
+- `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta. Internamente, a resposta correta usa indice comecando em `0`, mesmo que a exibicao das alternativas para o usuario comece em `1`.
 - `BancoDePerguntas`: mantem a colecao de perguntas e carrega perguntas iniciais.
 - `GerenciadorDePontos`: controla a pontuacao dos jogadores com base no tempo de resposta.
 - `ServidorService`: concentra a logica de envio da mensagem de boas-vindas via socket.
@@ -77,6 +77,14 @@ mvn test
 mvn clean package
 ```
 
+### Executar com Maven
+
+Para usar o `exec-maven-plugin` configurado no projeto:
+
+```bash
+mvn exec:java
+```
+
 ### Executar o servidor
 
 ```bash
@@ -91,13 +99,19 @@ Em outro terminal:
 mvn exec:java -Dexec.mainClass=br.com.kahoot.Cliente
 ```
 
+Ou, depois de compilar:
+
+```bash
+java -cp target/classes br.com.kahoot.Cliente
+```
+
 ## Testes
 
 Os testes ficam em `src/test/java/br/com/kahoot` e cobrem as classes principais do dominio e do servico:
 
 - `PerguntaTest`
 - `BancoDePerguntasTest`
-- `GerenciadorPontosTest`
+- `GerenciadorDePontosTest`
 - `ServidorServiceTest`
 
 ## Integracao continua com Jenkins
@@ -132,10 +146,26 @@ Sobe um servico Jenkins local com:
 ### Subir o Jenkins localmente
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
 Depois disso, acesse `http://localhost:8080`.
+
+### Observacoes sobre o Jenkins
+
+- O envio de e-mails definido no `Jenkinsfile` depende de SMTP configurado no Jenkins.
+- Sem essa configuracao, o pipeline pode executar normalmente, mas as notificacoes por e-mail nao serao enviadas.
+
+## Uso de IA
+
+Este projeto utilizou apoio de IA como suporte tecnico para:
+
+- revisao e melhoria da documentacao
+- sugestoes de refatoracao
+- ampliacao de testes automatizados
+- apoio na organizacao da pipeline e do ambiente Jenkins com Docker
+
+Todo o conteudo gerado com apoio de IA foi revisado e adaptado pela equipe antes de ser incorporado ao projeto.
 
 ## Autores
 
