@@ -1,17 +1,16 @@
 package br.com.kahoot;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
 class ServidorServiceTest {
 
@@ -25,25 +24,34 @@ class ServidorServiceTest {
         new ServidorService().enviarBoasVindas(socket);
 
         String mensagem = outputStream.toString().trim();
-        assertEquals("Bem-vindo ao MiniKahoot!", mensagem);
+        assertEquals("BEM_VINDO|" + ServidorService.MENSAGEM_BOAS_VINDAS, mensagem);
     }
 
     @Test
-    void naoDeveEnviarMensagemVazia() throws Exception {
+    void deveEnviarPerguntaFormatada() throws Exception {
         Socket socket = mock(Socket.class);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         when(socket.getOutputStream()).thenReturn(outputStream);
 
-        new ServidorService().enviarBoasVindas(socket);
+        new ServidorService().atenderCliente(socket);
+
+        String protocoloEsperado = String.join(System.lineSeparator(),
+                "BEM_VINDO|Bem-vindo ao MiniKahoot!",
+                "PERGUNTA|Qual estrutura armazena pares chave-valor em Java?",
+                "ALT|1|List",
+                "ALT|2|Set",
+                "ALT|3|Map",
+                "ALT|4|Queue",
+                "FIM_PERGUNTA",
+                "FIM");
 
         String mensagem = outputStream.toString().trim();
-
-        assertFalse(mensagem.isEmpty());
+        assertEquals(protocoloEsperado, mensagem);
     }
 
     @Test
-    void deveChamarOutputStreamApenasUmaVez() throws Exception {
+    void deveChamarOutputStreamApenasUmaVezAoEnviarBoasVindas() throws Exception {
         Socket socket = mock(Socket.class);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -55,33 +63,27 @@ class ServidorServiceTest {
     }
 
     @Test
-    void deveLancarExcecaoQuandoOutputStreamFalhar() throws Exception {
+    void deveTratarErroDeConexaoSemMascararExcecao() throws Exception {
         Socket socket = mock(Socket.class);
 
         when(socket.getOutputStream()).thenThrow(new RuntimeException("Erro simulado"));
 
         ServidorService service = new ServidorService();
 
-        assertThrows(RuntimeException.class, () -> {
-            service.enviarBoasVindas(socket);
-        });
+        assertThrows(RuntimeException.class, () -> service.atenderCliente(socket));
 
         verify(socket).getOutputStream();
     }
 
     @Test
-    void deveAtenderMultiplosClientes() throws Exception {
+    void deveFecharSocketAposAtendimento() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        ServidorService serviceMock = mock(ServidorService.class);
+        when(socket.getOutputStream()).thenReturn(outputStream);
 
-        Socket socket1 = mock(Socket.class);
-        Socket socket2 = mock(Socket.class);
+        new ServidorService().atenderCliente(socket);
 
-        // Simulando duas conexões
-        serviceMock.enviarBoasVindas(socket1);
-        serviceMock.enviarBoasVindas(socket2);
-
-        verify(serviceMock, times(1)).enviarBoasVindas(socket1);
-        verify(serviceMock, times(1)).enviarBoasVindas(socket2);
+        verify(socket, times(1)).close();
     }
 }
