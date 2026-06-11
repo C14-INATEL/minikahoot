@@ -1,14 +1,31 @@
-# Java
+# Maven / Java
+target/
 *.class
+*.jar
+*.war
+*.ear
 
-# IntelliJ
+# IDEs
 .idea/
+.vscode/
 out/
 *.iml
 
-# Maven
-target/
-
-# Sistema
+# Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+
+# Arquivos compactados gerados
+*.zip
+*.rar
+*.7z
+
+# Arquivos temporarios
+*.tmp
+*.bak
+
+# Ferramentas auxiliares nao usadas na entrega
+.github/modernize/
