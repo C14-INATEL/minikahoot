@@ -45,12 +45,34 @@ Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para si
 
 ## Componentes principais
 
-- `Servidor`: inicia o servidor TCP na porta `12345`, aguarda conexao de um cliente e envia a mensagem inicial.
-- `Cliente`: conecta ao servidor em `localhost:12345` e exibe a mensagem recebida.
+- `Servidor`: inicia o servidor TCP na porta `12345`, aguarda a conexao de um cliente e delega o atendimento para `ServidorService`.
+- `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe pergunta e alternativas, envia a resposta digitada pelo usuario e mostra resultado e pontuacao.
 - `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta. Internamente, a resposta correta usa indice comecando em `0`, mesmo que a exibicao das alternativas para o usuario comece em `1`.
 - `BancoDePerguntas`: mantem a colecao de perguntas e carrega perguntas iniciais.
-- `GerenciadorDePontos`: controla a pontuacao dos jogadores com base no tempo de resposta.
-- `ServidorService`: concentra a logica de envio da mensagem de boas-vindas via socket.
+- `GerenciadorDePontos`: calcula a pontuacao, impede pontuacao negativa e permite obter ranking dos jogadores.
+- `ServidorService`: concentra o fluxo do jogo, incluindo boas-vindas, envio da pergunta, leitura da resposta, validacao, pontuacao e encerramento.
+
+## Protocolo de comunicacao
+
+O servidor e o cliente usam mensagens em texto simples via socket TCP.
+
+Exemplo de fluxo:
+
+```text
+BEM_VINDO|Bem-vindo ao MiniKahoot!
+PERGUNTA|Qual estrutura armazena pares chave-valor em Java?
+ALT|1|List
+ALT|2|Set
+ALT|3|Map
+ALT|4|Queue
+FIM_PERGUNTA
+RESPONDA
+RESULTADO|ACERTO
+PONTOS|1500
+FIM
+```
+
+Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao em `0`.
 
 ## Requisitos
 
@@ -115,6 +137,14 @@ Ou, depois de compilar:
 java -cp target/classes br.com.kahoot.Cliente
 ```
 
+Fluxo manual esperado:
+
+1. Inicie o servidor.
+2. Execute o cliente em outro terminal.
+3. Leia a pergunta e as alternativas exibidas.
+4. Quando o cliente mostrar `Digite sua resposta:`, informe o numero da alternativa.
+5. Verifique o retorno com `RESULTADO`, `PONTOS` e `FIM`.
+
 ## Testes
 
 Os testes ficam em `src/test/java/br/com/kahoot` e cobrem as classes principais do dominio e do servico:
@@ -172,6 +202,22 @@ Depois disso, acesse `http://localhost:8080`.
 
 - O envio de e-mails definido no `Jenkinsfile` depende de SMTP configurado no Jenkins.
 - Sem essa configuracao, o pipeline pode executar normalmente, mas as notificacoes por e-mail nao serao enviadas.
+
+## Notificacao por e-mail no Jenkins
+
+O pipeline possui notificacao por e-mail no bloco `post` do `Jenkinsfile`.
+Para funcionar, o Jenkins precisa estar com SMTP configurado em:
+
+`Manage Jenkins -> System -> E-mail Notification`
+
+No caso de Gmail, e necessario usar senha de app, nao a senha normal da conta.
+
+## Melhorias futuras
+
+- Medir o tempo real de resposta do jogador no fluxo cliente-servidor.
+- Exibir o ranking completo ao final da partida.
+- Permitir multiplos jogadores simultaneos.
+- Expandir o banco de perguntas.
 
 ## Uso de IA
 
