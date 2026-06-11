@@ -219,6 +219,29 @@ No caso de Gmail, e necessario usar senha de app, nao a senha normal da conta.
 - Permitir multiplos jogadores simultaneos.
 - Expandir o banco de perguntas.
 
+## Entrega limpa
+
+Para validar a entrega final, recomenda-se executar:
+
+```bash
+mvn clean test
+mvn clean package
+```
+
+Resultado esperado:
+
+- testes executados sem falhas
+- relatorios atualizados em `target/surefire-reports/`
+- arquivo `.jar` gerado em `target/`
+
+Para gerar um arquivo compactado limpo no PowerShell:
+
+```powershell
+Compress-Archive -Path Dockerfile.jenkins,Jenkinsfile,README.md,docker-compose.yml,pom.xml,src,.gitignore -DestinationPath minikahoot_entrega.zip -Force
+```
+
+O arquivo de entrega nao deve incluir `target/`, `.git/`, arquivos `.zip` internos nem a pasta `.github/modernize/`.
+
 ## Uso de IA
 
 Este projeto utilizou apoio de IA como suporte tecnico para:
