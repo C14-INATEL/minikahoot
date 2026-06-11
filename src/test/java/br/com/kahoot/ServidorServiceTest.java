@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
@@ -28,10 +29,12 @@ class ServidorServiceTest {
     }
 
     @Test
-    void deveEnviarPerguntaFormatada() throws Exception {
+    void deveEnviarPerguntaEAlternativasParaCliente() throws Exception {
         Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("3\n".getBytes());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
+        when(socket.getInputStream()).thenReturn(inputStream);
         when(socket.getOutputStream()).thenReturn(outputStream);
 
         new ServidorService().atenderCliente(socket);
@@ -44,10 +47,45 @@ class ServidorServiceTest {
                 "ALT|3|Map",
                 "ALT|4|Queue",
                 "FIM_PERGUNTA",
+                "RESPONDA",
+                "RESULTADO|ACERTO",
+                "PONTOS|1500",
                 "FIM");
 
         String mensagem = outputStream.toString().trim();
         assertEquals(protocoloEsperado, mensagem);
+    }
+
+    @Test
+    void deveEnviarResultadoDeErroQuandoRespostaIncorreta() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("1\n".getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        when(socket.getInputStream()).thenReturn(inputStream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
+
+        new ServidorService().atenderCliente(socket);
+
+        String mensagem = outputStream.toString().trim();
+        assertEquals(true, mensagem.contains("RESULTADO|ERRO"));
+        assertEquals(true, mensagem.contains("PONTOS|0"));
+    }
+
+    @Test
+    void deveEnviarResultadoDeErroQuandoRespostaNaoForNumerica() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("abc\n".getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        when(socket.getInputStream()).thenReturn(inputStream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
+
+        new ServidorService().atenderCliente(socket);
+
+        String mensagem = outputStream.toString().trim();
+        assertEquals(true, mensagem.contains("RESULTADO|ERRO"));
+        assertEquals(true, mensagem.contains("PONTOS|0"));
     }
 
     @Test
@@ -66,6 +104,7 @@ class ServidorServiceTest {
     void deveTratarErroDeConexaoSemMascararExcecao() throws Exception {
         Socket socket = mock(Socket.class);
 
+        when(socket.getInputStream()).thenReturn(new ByteArrayInputStream("3\n".getBytes()));
         when(socket.getOutputStream()).thenThrow(new RuntimeException("Erro simulado"));
 
         ServidorService service = new ServidorService();
@@ -78,8 +117,10 @@ class ServidorServiceTest {
     @Test
     void deveFecharSocketAposAtendimento() throws Exception {
         Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("3\n".getBytes());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
+        when(socket.getInputStream()).thenReturn(inputStream);
         when(socket.getOutputStream()).thenReturn(outputStream);
 
         new ServidorService().atenderCliente(socket);
