@@ -39,6 +39,22 @@ public class GerenciadorDePontos {
         return Arrays.copyOf(jogadores, jogadores.length);
     }
 
+    public String[] obterRanking() {
+        Integer[] indices = new Integer[jogadores.length];
+        for (int i = 0; i < jogadores.length; i++) {
+            indices[i] = i;
+        }
+
+        Arrays.sort(indices, (indice1, indice2) -> Float.compare(pontos[indice2], pontos[indice1]));
+
+        String[] ranking = new String[jogadores.length];
+        for (int i = 0; i < indices.length; i++) {
+            ranking[i] = jogadores[indices[i]];
+        }
+
+        return ranking;
+    }
+
     private void validarJogadores(String[] jogadores) {
         if (jogadores == null) {
             throw new IllegalArgumentException("Jogadores nao podem ser nulos");
