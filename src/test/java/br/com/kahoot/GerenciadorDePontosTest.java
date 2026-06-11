@@ -95,6 +95,32 @@ class GerenciadorDePontosTest {
     }
 
     @Test
+    void deveRetornarRankingOrdenadoPorMaiorPontuacao() {
+        GerenciadorDePontos gp = new GerenciadorDePontos(new String[]{"Ana", "Bruno", "Carlos"}, 3);
+
+        gp.adicionarPontos(0, 10);
+        gp.adicionarPontos(1, 3);
+        gp.adicionarPontos(2, 7);
+
+        String[] ranking = gp.obterRanking();
+
+        assertArrayEquals(new String[]{"Bruno", "Carlos", "Ana"}, ranking);
+    }
+
+    @Test
+    void naoDevePermitirAlterarRankingExternamente() {
+        GerenciadorDePontos gp = new GerenciadorDePontos(new String[]{"Ana", "Bruno"}, 2);
+
+        gp.adicionarPontos(0, 10);
+        gp.adicionarPontos(1, 5);
+
+        String[] ranking = gp.obterRanking();
+        ranking[0] = "Alterado";
+
+        assertArrayEquals(new String[]{"Bruno", "Ana"}, gp.obterRanking());
+    }
+
+    @Test
     void deveManterPontuacoesIndependentesEntreJogadores() {
         String[] jogadores = {"Ana", "Carlos"};
         GerenciadorDePontos gp = new GerenciadorDePontos(jogadores, 2);
