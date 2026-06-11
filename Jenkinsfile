@@ -30,7 +30,7 @@ pipeline {
         stage('Testes Unitarios') {
             steps {
                 echo 'Executando testes unitarios...'
-                sh 'mvn test'
+                sh 'mvn clean test'
             }
             post {
                 always {
@@ -43,7 +43,7 @@ pipeline {
         stage('Package JAR') {
             steps {
                 echo 'Gerando pacote JAR do MiniKahoot...'
-                sh 'mvn clean package'
+                sh 'mvn package'
             }
         }
 
