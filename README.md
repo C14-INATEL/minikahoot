@@ -71,11 +71,21 @@ mvn clean compile
 mvn test
 ```
 
+### Limpar evidencias antigas e regenerar relatorios
+
+```bash
+mvn clean test
+```
+
+Esse comando remove a pasta `target/` anterior e gera novamente os relatorios atuais em `target/surefire-reports/`.
+
 ### Gerar o pacote da aplicacao
 
 ```bash
 mvn clean package
 ```
+
+Depois do empacotamento, o artefato `.jar` fica disponivel em `target/`.
 
 ### Executar com Maven
 
@@ -120,10 +130,17 @@ O projeto possui um `Jenkinsfile` com pipeline para:
 
 - validar o ambiente com Java, Maven e Git
 - compilar o projeto com Maven
-- executar os testes unitarios
+- executar os testes unitarios com `mvn clean test`
 - publicar relatorios JUnit
-- gerar o pacote JAR
+- gerar o pacote JAR com `mvn package`
 - arquivar os artefatos produzidos
+
+### Evidencias geradas
+
+Depois da execucao dos testes e do empacotamento, as principais evidencias ficam em:
+
+- `target/surefire-reports/`
+- `target/*.jar`
 
 ## Ambiente Jenkins com Docker
 
