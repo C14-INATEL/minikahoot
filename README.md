@@ -4,6 +4,8 @@
 
 Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para simular uma comunicacao basica inspirada em plataformas de quiz. O projeto foi organizado com Maven, possui testes unitarios com JUnit 5 e inclui automacao de pipeline com Jenkins e Docker.
 
+Nesta etapa do projeto, a documentacao funcional tambem passou a ser guiada por historias de usuario e por guias de apoio produzidos com IA e revisados pela equipe. Esses materiais ajudaram a consolidar o escopo da NP2, orientar a organizacao do grupo e alinhar a documentacao com o fluxo real implementado no codigo.
+
 ## Tecnologias utilizadas
 
 - Java 17
@@ -21,7 +23,9 @@ Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para si
 .
 |-- Dockerfile.jenkins
 |-- Jenkinsfile
+|-- USER_STORIES.md
 |-- docker-compose.yml
+|-- docs_ia_generated/
 |-- pom.xml
 |-- README.md
 `-- src
@@ -42,6 +46,25 @@ Mini Kahoot e uma aplicacao cliente/servidor em Java que usa sockets TCP para si
                 |-- PerguntaTest.java
                 `-- ServidorServiceTest.java
 ```
+
+## Documentacao de apoio do projeto
+
+- `USER_STORIES.md`: concentra as historias de usuario da NP2, com identificacao, contexto, criterios de aceitacao, rastreabilidade, notas tecnicas e definicao de pronto.
+- `docs_ia_generated/`: reune guias de apoio usados como base para discussao interna sobre organizacao do grupo, evolucao do codigo, testes, pipeline Jenkins, Docker e preparacao da entrega.
+
+Os guias em `docs_ia_generated/` nao foram incorporados automaticamente ao projeto. A equipe analisou as sugestoes, selecionou apenas as ideias coerentes com os requisitos e adaptou o conteudo ao estado real da implementacao.
+
+## Historias de usuario implementadas
+
+O arquivo `USER_STORIES.md` registra a evolucao funcional do Mini Kahoot a partir de cinco historias principais:
+
+- `US-001`: conexao do cliente ao servidor TCP local.
+- `US-002`: envio de pergunta e alternativas ao jogador.
+- `US-003`: envio e validacao da resposta do jogador.
+- `US-004`: calculo de pontuacao e ranking dos jogadores.
+- `US-005`: pipeline Jenkins em Docker com testes, relatorios e artefatos.
+
+No estado atual do projeto, as historias `US-001`, `US-002`, `US-003` e `US-005` estao concluidas. A `US-004` esta parcialmente concluida: a pontuacao e o ranking existem no dominio, mas a exibicao do ranking no protocolo final e a medicao do tempo real de resposta seguem como melhorias futuras.
 
 ## Componentes principais
 
@@ -164,6 +187,7 @@ O projeto possui um `Jenkinsfile` com pipeline para:
 - publicar relatorios JUnit
 - gerar o pacote JAR com `mvn package`
 - arquivar os artefatos produzidos
+- enviar notificacoes por e-mail ao final da execucao, quando o SMTP estiver configurado no Jenkins
 
 ### Evidencias geradas
 
@@ -246,10 +270,15 @@ O arquivo de entrega nao deve incluir `target/`, `.git/`, arquivos `.zip` intern
 
 Este projeto utilizou apoio de IA como suporte tecnico para:
 
+- estruturacao e refinamento das historias de usuario
+- organizacao das etapas de trabalho da equipe
 - revisao e melhoria da documentacao
 - sugestoes de refatoracao
 - ampliacao de testes automatizados
 - apoio na organizacao da pipeline e do ambiente Jenkins com Docker
+- levantamento de melhorias, correcoes pendentes e criterios de entrega
+
+Os guias gerados com IA ficaram registrados na pasta `docs_ia_generated/` como material de apoio ao projeto. A equipe comparou as respostas obtidas, selecionou as recomendacoes mais aderentes ao Mini Kahoot e aproveitou apenas o que fazia sentido para a implementacao e para os requisitos da disciplina.
 
 Todo o conteudo gerado com apoio de IA foi revisado e adaptado pela equipe antes de ser incorporado ao projeto.
 
