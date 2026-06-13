@@ -168,7 +168,7 @@ mvn exec:java -Dexec.mainClass=br.com.kahoot.Servidor
 
 ### Executar o cliente
 
-Em outro terminal:
+Se desejar executar os testes unitários existentes:
 
 ```bash
 java -cp target/classes br.com.kahoot.Cliente
