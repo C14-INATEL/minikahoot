@@ -72,7 +72,6 @@ No estado atual do projeto, as historias `US-001`, `US-002`, `US-003` e `US-005`
 ## Componentes principais
 
 - `Servidor`: inicia o servidor TCP na porta `12345`, aguarda a conexao de um cliente e delega o atendimento para `ServidorService`.
-- `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe pergunta e alternativas, envia a resposta digitada pelo usuario e mostra resultado e pontuacao.
 - `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe perguntas e alternativas em formato amigavel, envia o nome do jogador e a resposta digitada pelo usuario e mostra resultado, pontuacao e ranking.
 - `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta. Internamente, a resposta correta usa indice comecando em `0`, mesmo que a exibicao das alternativas para o usuario comece em `1`.
 - `BancoDePerguntas`: mantem a colecao de perguntas, carrega 30 perguntas base e sorteia 5 delas para cada partida.
