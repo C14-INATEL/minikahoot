@@ -71,7 +71,7 @@ No estado atual do projeto, as historias `US-001`, `US-002`, `US-003` e `US-005`
 - `Servidor`: inicia o servidor TCP na porta `12345`, aguarda a conexao de um cliente e delega o atendimento para `ServidorService`.
 - `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe pergunta e alternativas, envia a resposta digitada pelo usuario e mostra resultado e pontuacao.
 - `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta. Internamente, a resposta correta usa indice comecando em `0`, mesmo que a exibicao das alternativas para o usuario comece em `1`.
-- `BancoDePerguntas`: mantem a colecao de perguntas e carrega perguntas iniciais.
+- `BancoDePerguntas`: mantem a colecao de perguntas e carrega cinco perguntas iniciais para cada partida.
 - `GerenciadorDePontos`: calcula a pontuacao, impede pontuacao negativa e permite obter ranking dos jogadores.
 - `ServidorService`: concentra o fluxo do jogo, incluindo boas-vindas, envio da pergunta, leitura da resposta, validacao, pontuacao e encerramento.
 
@@ -95,7 +95,7 @@ PONTOS|1500
 FIM
 ```
 
-Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao em `0`.
+Esse bloco se repete ao longo da partida para as cinco perguntas carregadas no servidor. Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao acumulada ate aquele momento.
 
 ## Requisitos
 
@@ -165,8 +165,9 @@ Fluxo manual esperado:
 1. Inicie o servidor.
 2. Execute o cliente em outro terminal.
 3. Leia a pergunta e as alternativas exibidas.
-4. Quando o cliente mostrar `Digite sua resposta:`, informe o numero da alternativa.
-5. Verifique o retorno com `RESULTADO`, `PONTOS` e `FIM`.
+4. Quando o cliente mostrar `Digite sua resposta:`, informe o numero da alternativa para cada uma das cinco perguntas.
+5. Verifique o retorno com `RESULTADO` e `PONTOS` ao final de cada pergunta.
+6. Ao final da quinta pergunta, confirme o encerramento com `FIM`.
 
 ## Testes
 
@@ -241,7 +242,7 @@ No caso de Gmail, e necessario usar senha de app, nao a senha normal da conta.
 - Medir o tempo real de resposta do jogador no fluxo cliente-servidor.
 - Exibir o ranking completo ao final da partida.
 - Permitir multiplos jogadores simultaneos.
-- Expandir o banco de perguntas.
+- Expandir ainda mais o banco de perguntas.
 
 ## Entrega limpa
 

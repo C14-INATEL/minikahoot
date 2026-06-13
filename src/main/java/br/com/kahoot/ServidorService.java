@@ -36,14 +36,16 @@ public class ServidorService {
         try (Socket cliente = socket;
              BufferedReader in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
              PrintWriter out = new PrintWriter(cliente.getOutputStream(), true)) {
-            Pergunta pergunta = bancoDePerguntas.obterPergunta(0);
-
             enviarBoasVindas(out);
-            enviarPerguntaFormatada(out, pergunta);
-            out.println("RESPONDA");
 
-            String respostaRecebida = in.readLine();
-            processarResposta(out, pergunta, respostaRecebida);
+            for (Pergunta pergunta : bancoDePerguntas.obterTodas()) {
+                enviarPerguntaFormatada(out, pergunta);
+                out.println("RESPONDA");
+
+                String respostaRecebida = in.readLine();
+                processarResposta(out, pergunta, respostaRecebida);
+            }
+
             out.println("FIM");
         }
     }

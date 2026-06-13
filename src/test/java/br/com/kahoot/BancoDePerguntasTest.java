@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 class BancoDePerguntasTest {
 
     @Test
-    void deveCarregarTresPerguntasIniciais() {
+    void deveCarregarCincoPerguntasIniciais() {
         BancoDePerguntas perguntas = new BancoDePerguntas();
 
-        assertEquals(3, perguntas.getTotalPerguntas());
-        assertNotNull(perguntas.obterPergunta(0));
-        assertNotNull(perguntas.obterPergunta(1));
-        assertNotNull(perguntas.obterPergunta(2));
+        assertEquals(5, perguntas.getTotalPerguntas());
+        for (int i = 0; i < perguntas.getTotalPerguntas(); i++) {
+            assertNotNull(perguntas.obterPergunta(i));
+        }
     }
 
     @Test
