@@ -73,7 +73,7 @@ pipeline {
 
             mail to: "${EMAIL_DESTINO}",
                  subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} executado com sucesso",
-                 body: "O pipeline do MiniKahoot foi executado com sucesso. Build, testes, package e publicacao de artefatos passaram."
+                 body: "O pipeline do MiniKahoot foi executado com sucesso.\nBuild, testes, package e publicacao de artefatos passaram."
         }
 
         failure {
