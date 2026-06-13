@@ -27,6 +27,7 @@ Nesta etapa do projeto, a documentacao funcional tambem passou a ser guiada por 
 |-- docker-compose.yml
 |-- docs_ia_generated/
 |-- pom.xml
+|-- ranking_geral.txt
 |-- README.md
 `-- src
     |-- main
@@ -36,6 +37,7 @@ Nesta etapa do projeto, a documentacao funcional tambem passou a ser guiada por 
     |           |-- Cliente.java
     |           |-- GerenciadorDePontos.java
     |           |-- Pergunta.java
+    |           |-- RankingGeral.java
     |           |-- Servidor.java
     |           `-- ServidorService.java
     `-- test
@@ -44,6 +46,7 @@ Nesta etapa do projeto, a documentacao funcional tambem passou a ser guiada por 
                 |-- BancoDePerguntasTest.java
                 |-- GerenciadorDePontosTest.java
                 |-- PerguntaTest.java
+                |-- RankingGeralTest.java
                 `-- ServidorServiceTest.java
 ```
 
@@ -64,16 +67,18 @@ O arquivo `USER_STORIES.md` registra a evolucao funcional do Mini Kahoot a parti
 - `US-004`: calculo de pontuacao e ranking dos jogadores.
 - `US-005`: pipeline Jenkins em Docker com testes, relatorios e artefatos.
 
-No estado atual do projeto, as historias `US-001`, `US-002`, `US-003` e `US-005` estao concluidas. A `US-004` esta parcialmente concluida: a pontuacao e o ranking existem no dominio, mas a exibicao do ranking no protocolo final e a medicao do tempo real de resposta seguem como melhorias futuras.
+No estado atual do projeto, as historias `US-001`, `US-002`, `US-003` e `US-005` estao concluidas. A `US-004` avancou com a exibicao do ranking no final da partida e com a persistencia da melhor pontuacao por jogador, mas a medicao do tempo real de resposta e o suporte a multiplos jogadores simultaneos seguem como melhorias futuras.
 
 ## Componentes principais
 
 - `Servidor`: inicia o servidor TCP na porta `12345`, aguarda a conexao de um cliente e delega o atendimento para `ServidorService`.
 - `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe pergunta e alternativas, envia a resposta digitada pelo usuario e mostra resultado e pontuacao.
+- `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe perguntas e alternativas em formato amigavel, envia o nome do jogador e a resposta digitada pelo usuario e mostra resultado, pontuacao e ranking.
 - `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta. Internamente, a resposta correta usa indice comecando em `0`, mesmo que a exibicao das alternativas para o usuario comece em `1`.
 - `BancoDePerguntas`: mantem a colecao de perguntas e carrega cinco perguntas iniciais para cada partida.
 - `GerenciadorDePontos`: calcula a pontuacao, impede pontuacao negativa e permite obter ranking dos jogadores.
-- `ServidorService`: concentra o fluxo do jogo, incluindo boas-vindas, envio da pergunta, leitura da resposta, validacao, pontuacao e encerramento.
+- `RankingGeral`: persiste em arquivo a melhor pontuacao ja obtida por cada jogador e devolve o ranking ordenado.
+- `ServidorService`: concentra o fluxo do jogo, incluindo boas-vindas, coleta do nome do jogador, envio da pergunta, leitura da resposta, validacao, pontuacao, ranking final e encerramento.
 
 ## Protocolo de comunicacao
 
@@ -83,6 +88,7 @@ Exemplo de fluxo:
 
 ```text
 BEM_VINDO|Bem-vindo ao MiniKahoot!
+NOME
 PERGUNTA|Qual estrutura armazena pares chave-valor em Java?
 ALT|1|List
 ALT|2|Set
@@ -92,10 +98,15 @@ FIM_PERGUNTA
 RESPONDA
 RESULTADO|ACERTO
 PONTOS|1500
+RANKING_INICIO
+RANKING|1|Samuel|7500
+RANKING_FIM
 FIM
 ```
 
-Esse bloco se repete ao longo da partida para as cinco perguntas carregadas no servidor. Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao acumulada ate aquele momento.
+O servidor primeiro solicita o nome do jogador com `NOME`, depois repete o bloco da pergunta ao longo das cinco perguntas carregadas no servidor. Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao acumulada ate aquele momento. Ao final, o ranking geral e enviado ao cliente e tambem exibido no terminal do servidor.
+
+No terminal do cliente, essas mensagens sao apresentadas de forma mais amigavel. Por exemplo, as alternativas aparecem como `1) List`, `2) Set`, `3) Map`, `4) Queue`, e o prompt de resposta e exibido como `Digite sua resposta (ex: 2):`.
 
 ## Requisitos
 
@@ -140,7 +151,17 @@ Para usar o `exec-maven-plugin` configurado no projeto:
 mvn exec:java
 ```
 
+Observacao: como o `exec-maven-plugin` esta configurado com `br.com.kahoot.Servidor` como classe principal padrao, a forma mais confiavel de executar cliente e servidor separadamente e usar os comandos `java -cp target/classes ...` apos a compilacao.
+
 ### Executar o servidor
+
+Depois de compilar:
+
+```bash
+java -cp target/classes br.com.kahoot.Servidor
+```
+
+Ou, se quiser usar a configuracao padrao do Maven:
 
 ```bash
 mvn exec:java -Dexec.mainClass=br.com.kahoot.Servidor
@@ -151,12 +172,6 @@ mvn exec:java -Dexec.mainClass=br.com.kahoot.Servidor
 Em outro terminal:
 
 ```bash
-mvn exec:java -Dexec.mainClass=br.com.kahoot.Cliente
-```
-
-Ou, depois de compilar:
-
-```bash
 java -cp target/classes br.com.kahoot.Cliente
 ```
 
@@ -164,10 +179,15 @@ Fluxo manual esperado:
 
 1. Inicie o servidor.
 2. Execute o cliente em outro terminal.
-3. Leia a pergunta e as alternativas exibidas.
-4. Quando o cliente mostrar `Digite sua resposta:`, informe o numero da alternativa para cada uma das cinco perguntas.
-5. Verifique o retorno com `RESULTADO` e `PONTOS` ao final de cada pergunta.
-6. Ao final da quinta pergunta, confirme o encerramento com `FIM`.
+3. Quando o cliente mostrar `Digite seu nome:`, informe o nome do jogador.
+4. Leia a pergunta e as alternativas exibidas.
+5. Quando o cliente mostrar `Digite sua resposta (ex: 2):`, informe o numero da alternativa para cada uma das cinco perguntas.
+6. Verifique o retorno com `RESULTADO` e `PONTOS` ao final de cada pergunta.
+7. Ao final da quinta pergunta, confira o ranking geral enviado ao cliente e o encerramento com `FIM`.
+
+### Ranking persistido
+
+O ranking geral e salvo no arquivo `ranking_geral.txt`, criado automaticamente na raiz do projeto durante a execucao. Esse arquivo registra a melhor pontuacao obtida por cada jogador entre diferentes execucoes locais do sistema.
 
 ## Testes
 
@@ -176,6 +196,7 @@ Os testes ficam em `src/test/java/br/com/kahoot` e cobrem as classes principais 
 - `PerguntaTest`
 - `BancoDePerguntasTest`
 - `GerenciadorDePontosTest`
+- `RankingGeralTest`
 - `ServidorServiceTest`
 
 ## Integracao continua com Jenkins
@@ -240,7 +261,6 @@ No caso de Gmail, e necessario usar senha de app, nao a senha normal da conta.
 ## Melhorias futuras
 
 - Medir o tempo real de resposta do jogador no fluxo cliente-servidor.
-- Exibir o ranking completo ao final da partida.
 - Permitir multiplos jogadores simultaneos.
 - Expandir ainda mais o banco de perguntas.
 

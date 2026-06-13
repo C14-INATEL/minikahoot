@@ -17,6 +17,7 @@ Thumbs.db
 
 # Logs
 *.log
+ranking_geral.txt
 
 # Arquivos compactados gerados
 *.zip
