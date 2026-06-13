@@ -10,6 +10,7 @@ import java.util.Map;
 public class ServidorService {
 
     static final String MENSAGEM_BOAS_VINDAS = "Bem-vindo ao MiniKahoot!";
+    private static final int PERGUNTAS_POR_PARTIDA = 5;
     private static final String[] JOGADOR_PADRAO = {"Jogador"};
 
     private final BancoDePerguntas bancoDePerguntas;
@@ -63,7 +64,7 @@ public class ServidorService {
 
             String nomeJogador = solicitarNomeDoJogador(out, in);
 
-            for (Pergunta pergunta : bancoDePerguntas.obterTodas()) {
+            for (Pergunta pergunta : bancoDePerguntas.obterPerguntasAleatorias(PERGUNTAS_POR_PARTIDA)) {
                 enviarPerguntaFormatada(out, pergunta);
                 out.println("RESPONDA");
 

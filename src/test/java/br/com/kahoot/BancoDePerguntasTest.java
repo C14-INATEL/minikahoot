@@ -4,18 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 class BancoDePerguntasTest {
 
     @Test
-    void deveCarregarCincoPerguntasIniciais() {
+    void deveCarregarTrintaPerguntasIniciais() {
         BancoDePerguntas perguntas = new BancoDePerguntas();
 
-        assertEquals(5, perguntas.getTotalPerguntas());
+        assertEquals(30, perguntas.getTotalPerguntas());
         for (int i = 0; i < perguntas.getTotalPerguntas(); i++) {
             assertNotNull(perguntas.obterPergunta(i));
         }
@@ -44,6 +48,26 @@ class BancoDePerguntasTest {
         ));
 
         assertEquals(totalInicial + 1, perguntas.getTotalPerguntas());
+    }
+
+    @Test
+    void deveRetornarCincoPerguntasAleatoriasSemRepeticao() {
+        BancoDePerguntas perguntas = new BancoDePerguntas(new Random(0));
+
+        List<Pergunta> perguntasAleatorias = perguntas.obterPerguntasAleatorias(5);
+        Set<Pergunta> perguntasUnicas = new HashSet<>(perguntasAleatorias);
+
+        assertEquals(5, perguntasAleatorias.size());
+        assertEquals(5, perguntasUnicas.size());
+        assertTrue(perguntas.obterTodas().containsAll(perguntasAleatorias));
+    }
+
+    @Test
+    void naoDevePermitirQuantidadeInvalidaAoSortearPerguntas() {
+        BancoDePerguntas perguntas = new BancoDePerguntas();
+
+        assertThrows(IllegalArgumentException.class, () -> perguntas.obterPerguntasAleatorias(0));
+        assertThrows(IllegalArgumentException.class, () -> perguntas.obterPerguntasAleatorias(31));
     }
 
     @Test

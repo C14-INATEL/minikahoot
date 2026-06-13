@@ -75,7 +75,7 @@ No estado atual do projeto, as historias `US-001`, `US-002`, `US-003` e `US-005`
 - `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe pergunta e alternativas, envia a resposta digitada pelo usuario e mostra resultado e pontuacao.
 - `Cliente`: conecta ao servidor em `localhost:12345`, le todas as mensagens do protocolo, exibe perguntas e alternativas em formato amigavel, envia o nome do jogador e a resposta digitada pelo usuario e mostra resultado, pontuacao e ranking.
 - `Pergunta`: representa uma pergunta do quiz, com enunciado, alternativas e resposta correta. Internamente, a resposta correta usa indice comecando em `0`, mesmo que a exibicao das alternativas para o usuario comece em `1`.
-- `BancoDePerguntas`: mantem a colecao de perguntas e carrega cinco perguntas iniciais para cada partida.
+- `BancoDePerguntas`: mantem a colecao de perguntas, carrega 30 perguntas base e sorteia 5 delas para cada partida.
 - `GerenciadorDePontos`: calcula a pontuacao, impede pontuacao negativa e permite obter ranking dos jogadores.
 - `RankingGeral`: persiste em arquivo a melhor pontuacao ja obtida por cada jogador e devolve o ranking ordenado.
 - `ServidorService`: concentra o fluxo do jogo, incluindo boas-vindas, coleta do nome do jogador, envio da pergunta, leitura da resposta, validacao, pontuacao, ranking final e encerramento.
@@ -104,7 +104,7 @@ RANKING_FIM
 FIM
 ```
 
-O servidor primeiro solicita o nome do jogador com `NOME`, depois repete o bloco da pergunta ao longo das cinco perguntas carregadas no servidor. Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao acumulada ate aquele momento. Ao final, o ranking geral e enviado ao cliente e tambem exibido no terminal do servidor.
+O servidor primeiro solicita o nome do jogador com `NOME`, depois repete o bloco da pergunta ao longo de 5 perguntas sorteadas aleatoriamente entre as 30 carregadas no banco. Nao ha repeticao de pergunta dentro da mesma partida. Se o cliente enviar uma resposta invalida ou incorreta, o servidor devolve `RESULTADO|ERRO` e mantem a pontuacao acumulada ate aquele momento. Ao final, o ranking geral e enviado ao cliente e tambem exibido no terminal do servidor.
 
 No terminal do cliente, essas mensagens sao apresentadas de forma mais amigavel. Por exemplo, as alternativas aparecem como `1) List`, `2) Set`, `3) Map`, `4) Queue`, e o prompt de resposta e exibido como `Digite sua resposta (ex: 2):`.
 
@@ -181,13 +181,17 @@ Fluxo manual esperado:
 2. Execute o cliente em outro terminal.
 3. Quando o cliente mostrar `Digite seu nome:`, informe o nome do jogador.
 4. Leia a pergunta e as alternativas exibidas.
-5. Quando o cliente mostrar `Digite sua resposta (ex: 2):`, informe o numero da alternativa para cada uma das cinco perguntas.
+5. Quando o cliente mostrar `Digite sua resposta (ex: 2):`, informe o numero da alternativa para cada uma das 5 perguntas sorteadas da sessao.
 6. Verifique o retorno com `RESULTADO` e `PONTOS` ao final de cada pergunta.
 7. Ao final da quinta pergunta, confira o ranking geral enviado ao cliente e o encerramento com `FIM`.
 
 ### Ranking persistido
 
 O ranking geral e salvo no arquivo `ranking_geral.txt`, criado automaticamente na raiz do projeto durante a execucao. Esse arquivo registra a melhor pontuacao obtida por cada jogador entre diferentes execucoes locais do sistema.
+
+### Banco de perguntas
+
+O projeto possui 30 perguntas cadastradas no `BancoDePerguntas`. A cada nova partida, o servidor sorteia 5 perguntas sem repeticao para compor a sessao atual.
 
 ## Testes
 
@@ -262,7 +266,7 @@ No caso de Gmail, e necessario usar senha de app, nao a senha normal da conta.
 
 - Medir o tempo real de resposta do jogador no fluxo cliente-servidor.
 - Permitir multiplos jogadores simultaneos.
-- Expandir ainda mais o banco de perguntas.
+- Expandir ainda mais o banco de perguntas com novas categorias ou niveis de dificuldade.
 
 ## Entrega limpa
 

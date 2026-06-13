@@ -99,7 +99,7 @@ para que eu consiga escolher uma resposta durante a partida.
 
 ### Contexto / Motivacao
 
-Para transformar a conexao TCP basica em um quiz jogavel, foi necessario modelar perguntas e integrar esse dominio ao servidor. A classe `Pergunta` representa o enunciado, as alternativas e a resposta correta. O `BancoDePerguntas` passou a carregar cinco perguntas iniciais.
+Para transformar a conexao TCP basica em um quiz jogavel, foi necessario modelar perguntas e integrar esse dominio ao servidor. A classe `Pergunta` representa o enunciado, as alternativas e a resposta correta. O `BancoDePerguntas` passou a carregar 30 perguntas base e a fornecer 5 perguntas aleatorias por partida.
 
 ### Criterios de Aceitacao
 
@@ -107,8 +107,15 @@ Para transformar a conexao TCP basica em um quiz jogavel, foi necessario modelar
 
 Dado que o sistema inicializa o banco de perguntas  
 Quando a classe `BancoDePerguntas` e instanciada  
-Entao deve haver perguntas iniciais disponiveis  
+Entao deve haver um conjunto inicial de perguntas disponiveis  
 E cada pergunta deve possuir enunciado, alternativas e resposta correta.
+
+#### AC-01A - Sorteio da sessao
+
+Dado que o banco possui varias perguntas cadastradas  
+Quando uma nova partida e iniciada  
+Entao o sistema deve selecionar 5 perguntas aleatorias para a sessao  
+E nenhuma pergunta deve se repetir dentro da mesma partida.
 
 #### AC-02 - Validacao da pergunta
 
@@ -157,6 +164,7 @@ Internamente, a resposta correta usa indice iniciado em `0`, enquanto a exibicao
 
 - [x] Classe `Pergunta` implementada com validacoes.
 - [x] Classe `BancoDePerguntas` criada com perguntas iniciais.
+- [x] Banco sorteia 5 perguntas aleatorias sem repeticao por partida.
 - [x] Servidor envia enunciado e alternativas pelo protocolo.
 - [x] Cliente exibe as mensagens recebidas.
 - [x] Testes unitarios cobrem pergunta, banco e protocolo.
