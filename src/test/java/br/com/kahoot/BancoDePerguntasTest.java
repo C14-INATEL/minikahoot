@@ -1,23 +1,39 @@
 package br.com.kahoot;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 class BancoDePerguntasTest {
 
     @Test
-    void deveCarregarBancoInicialOrganizado() {
+    void deveCarregarTrintaPerguntasIniciais() {
         BancoDePerguntas perguntas = new BancoDePerguntas();
 
-        assertEquals(3, perguntas.getTotalPerguntas());
-        assertNotNull(perguntas.obterPergunta(0));
-        assertNotNull(perguntas.obterPergunta(1));
-        assertNotNull(perguntas.obterPergunta(2));
+        assertEquals(30, perguntas.getTotalPerguntas());
+        for (int i = 0; i < perguntas.getTotalPerguntas(); i++) {
+            assertNotNull(perguntas.obterPergunta(i));
+        }
+    }
+
+    @Test
+    void deveObterPerguntaPorIndiceValido() {
+        BancoDePerguntas perguntas = new BancoDePerguntas();
+
+        Pergunta pergunta = perguntas.obterPergunta(1);
+
+        assertNotNull(pergunta);
+        assertEquals(1, pergunta.getRespostaCorreta());
+        assertArrayEquals(new String[]{"FTP", "HTTP", "SSH", "SMTP"}, pergunta.getAlternativas());
     }
 
     @Test
@@ -32,6 +48,26 @@ class BancoDePerguntasTest {
         ));
 
         assertEquals(totalInicial + 1, perguntas.getTotalPerguntas());
+    }
+
+    @Test
+    void deveRetornarCincoPerguntasAleatoriasSemRepeticao() {
+        BancoDePerguntas perguntas = new BancoDePerguntas(new Random(0));
+
+        List<Pergunta> perguntasAleatorias = perguntas.obterPerguntasAleatorias(5);
+        Set<Pergunta> perguntasUnicas = new HashSet<>(perguntasAleatorias);
+
+        assertEquals(5, perguntasAleatorias.size());
+        assertEquals(5, perguntasUnicas.size());
+        assertTrue(perguntas.obterTodas().containsAll(perguntasAleatorias));
+    }
+
+    @Test
+    void naoDevePermitirQuantidadeInvalidaAoSortearPerguntas() {
+        BancoDePerguntas perguntas = new BancoDePerguntas();
+
+        assertThrows(IllegalArgumentException.class, () -> perguntas.obterPerguntasAleatorias(0));
+        assertThrows(IllegalArgumentException.class, () -> perguntas.obterPerguntasAleatorias(31));
     }
 
     @Test

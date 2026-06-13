@@ -39,6 +39,24 @@ class PerguntaTest {
     }
 
     @Test
+    void naoDeveCriarPerguntaComAlternativaVazia() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Pergunta("Pergunta?", new String[]{"", "Opcao valida"}, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Pergunta("Pergunta?", new String[]{"   ", "Opcao valida"}, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Pergunta("Pergunta?", new String[]{null, "Opcao valida"}, 1));
+    }
+
+    @Test
+    void naoDeveCriarPerguntaComAlternativasDuplicadas() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Pergunta("Pergunta?", new String[]{"Java", "Java"}, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Pergunta("Pergunta?", new String[]{"Java", " java "}, 0));
+    }
+
+    @Test
     void naoDeveAceitarRespostaForaDoIntervalo() {
         String[] alternativas = {"Java", "Python", "C#"};
 

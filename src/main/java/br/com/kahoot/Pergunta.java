@@ -1,6 +1,8 @@
 package br.com.kahoot;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Pergunta {
 
@@ -65,6 +67,19 @@ public class Pergunta {
 
         if (alternativas.length < MINIMO_ALTERNATIVAS) {
             throw new IllegalArgumentException("Pergunta deve ter pelo menos duas alternativas");
+        }
+
+        Set<String> alternativasNormalizadas = new HashSet<>();
+
+        for (String alternativa : alternativas) {
+            if (alternativa == null || alternativa.trim().isEmpty()) {
+                throw new IllegalArgumentException("Alternativa nao pode ser vazia ou nula");
+            }
+
+            String alternativaNormalizada = alternativa.trim().toLowerCase();
+            if (!alternativasNormalizadas.add(alternativaNormalizada)) {
+                throw new IllegalArgumentException("Alternativas nao podem ser duplicadas");
+            }
         }
     }
 

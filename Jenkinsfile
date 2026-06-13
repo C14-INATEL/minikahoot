@@ -30,7 +30,7 @@ pipeline {
         stage('Testes Unitarios') {
             steps {
                 echo 'Executando testes unitarios...'
-                sh 'mvn test'
+                sh 'mvn clean test'
             }
             post {
                 always {
@@ -43,7 +43,7 @@ pipeline {
         stage('Package JAR') {
             steps {
                 echo 'Gerando pacote JAR do MiniKahoot...'
-                sh 'mvn clean package'
+                sh 'mvn package'
             }
         }
 
@@ -73,7 +73,7 @@ pipeline {
 
             mail to: "${EMAIL_DESTINO}",
                  subject: "MiniKahoot - Pipeline #${env.BUILD_NUMBER} executado com sucesso",
-                 body: "O pipeline do MiniKahoot foi executado com sucesso. Build, testes, package e publicacao de artefatos passaram."
+                 body: "O pipeline do MiniKahoot foi executado com sucesso.\nBuild, testes, package e publicacao de artefatos passaram."
         }
 
         failure {

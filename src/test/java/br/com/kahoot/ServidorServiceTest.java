@@ -1,19 +1,24 @@
 package br.com.kahoot;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class ServidorServiceTest {
+
+    @TempDir
+    Path pastaTemporaria;
 
     @Test
     void deveEnviarMensagemDeBoasVindasAoSocket() throws Exception {
@@ -25,25 +30,87 @@ class ServidorServiceTest {
         new ServidorService().enviarBoasVindas(socket);
 
         String mensagem = outputStream.toString().trim();
-        assertEquals("Bem-vindo ao MiniKahoot!", mensagem);
+        assertEquals("BEM_VINDO|" + ServidorService.MENSAGEM_BOAS_VINDAS, mensagem);
     }
 
     @Test
-    void naoDeveEnviarMensagemVazia() throws Exception {
+    void deveSolicitarNomeEnviarCincoPerguntasEApresentarRankingFinal() throws Exception {
         Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("Samuel\n1\n1\n1\n1\n1\n".getBytes());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
+        when(socket.getInputStream()).thenReturn(inputStream);
         when(socket.getOutputStream()).thenReturn(outputStream);
 
-        new ServidorService().enviarBoasVindas(socket);
+        ServidorService service = criarServiceComRankingTemporario();
+        service.atenderCliente(socket);
 
         String mensagem = outputStream.toString().trim();
-
-        assertFalse(mensagem.isEmpty());
+        assertEquals(1, contarOcorrencias(mensagem, "BEM_VINDO|Bem-vindo ao MiniKahoot!"));
+        assertEquals(1, contarOcorrencias(mensagem, "NOME"));
+        assertEquals(5, contarOcorrencias(mensagem, "PERGUNTA|"));
+        assertEquals(5, contarOcorrencias(mensagem, "RESPONDA"));
+        assertEquals(5, contarOcorrencias(mensagem, "RESULTADO|ACERTO"));
+        assertEquals(true, mensagem.contains("RANKING_INICIO"));
+        assertEquals(true, mensagem.contains("RANKING|1|Samuel|7500"));
+        assertEquals(true, mensagem.endsWith("FIM"));
     }
 
     @Test
-    void deveChamarOutputStreamApenasUmaVez() throws Exception {
+    void deveManterPontuacaoZeroQuandoTodasAsRespostasForemIncorretas() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("Samuel\n2\n2\n2\n2\n2\n".getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        when(socket.getInputStream()).thenReturn(inputStream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
+
+        ServidorService service = criarServiceComRankingTemporario();
+        service.atenderCliente(socket);
+
+        String mensagem = outputStream.toString().trim();
+        assertEquals(5, contarOcorrencias(mensagem, "RESULTADO|ERRO"));
+        assertEquals(5, contarOcorrencias(mensagem, "PONTOS|0"));
+        assertEquals(true, mensagem.contains("RANKING|1|Samuel|0"));
+    }
+
+    @Test
+    void deveTratarRespostaNaoNumericaSemInterromperAsDemaisPerguntas() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("Samuel\nabc\n1\nx\n1\n1\n".getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        when(socket.getInputStream()).thenReturn(inputStream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
+
+        ServidorService service = criarServiceComRankingTemporario();
+        service.atenderCliente(socket);
+
+        String mensagem = outputStream.toString().trim();
+        assertEquals(2, contarOcorrencias(mensagem, "RESULTADO|ERRO"));
+        assertEquals(3, contarOcorrencias(mensagem, "RESULTADO|ACERTO"));
+        assertEquals(true, mensagem.contains("RANKING_INICIO"));
+        assertEquals(true, mensagem.endsWith("FIM"));
+    }
+
+    @Test
+    void deveUsarNomePadraoQuandoClienteNaoInformarNome() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("\n1\n1\n1\n1\n1\n".getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        when(socket.getInputStream()).thenReturn(inputStream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
+
+        ServidorService service = criarServiceComRankingTemporario();
+        service.atenderCliente(socket);
+
+        String mensagem = outputStream.toString().trim();
+        assertEquals(true, mensagem.contains("RANKING|1|Jogador|7500"));
+    }
+
+    @Test
+    void deveChamarOutputStreamApenasUmaVezAoEnviarBoasVindas() throws Exception {
         Socket socket = mock(Socket.class);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -55,33 +122,62 @@ class ServidorServiceTest {
     }
 
     @Test
-    void deveLancarExcecaoQuandoOutputStreamFalhar() throws Exception {
+    void deveTratarErroDeConexaoSemMascararExcecao() throws Exception {
         Socket socket = mock(Socket.class);
 
+        when(socket.getInputStream()).thenReturn(new ByteArrayInputStream("Samuel\n1\n1\n1\n1\n1\n".getBytes()));
         when(socket.getOutputStream()).thenThrow(new RuntimeException("Erro simulado"));
 
-        ServidorService service = new ServidorService();
+        ServidorService service = criarServiceComRankingTemporario();
 
-        assertThrows(RuntimeException.class, () -> {
-            service.enviarBoasVindas(socket);
-        });
+        assertThrows(RuntimeException.class, () -> service.atenderCliente(socket));
 
         verify(socket).getOutputStream();
     }
 
     @Test
-    void deveAtenderMultiplosClientes() throws Exception {
+    void deveFecharSocketAposAtendimento() throws Exception {
+        Socket socket = mock(Socket.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("Samuel\n1\n1\n1\n1\n1\n".getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        ServidorService serviceMock = mock(ServidorService.class);
+        when(socket.getInputStream()).thenReturn(inputStream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
 
-        Socket socket1 = mock(Socket.class);
-        Socket socket2 = mock(Socket.class);
+        ServidorService service = criarServiceComRankingTemporario();
+        service.atenderCliente(socket);
 
-        // Simulando duas conexões
-        serviceMock.enviarBoasVindas(socket1);
-        serviceMock.enviarBoasVindas(socket2);
+        verify(socket, times(1)).close();
+    }
 
-        verify(serviceMock, times(1)).enviarBoasVindas(socket1);
-        verify(serviceMock, times(1)).enviarBoasVindas(socket2);
+    private ServidorService criarServiceComRankingTemporario() {
+        BancoDePerguntas banco = new BancoDePerguntas();
+        banco.limpar();
+
+        for (int i = 1; i <= 5; i++) {
+            banco.adicionarPergunta(new Pergunta(
+                    "Pergunta de teste " + i + "?",
+                    new String[]{"Correta", "Errada A", "Errada B", "Errada C"},
+                    0
+            ));
+        }
+
+        return new ServidorService(
+                banco,
+                new GerenciadorDePontos(new String[]{"Jogador"}, 1),
+                new RankingGeral(pastaTemporaria.resolve("ranking.txt"))
+        );
+    }
+
+    private int contarOcorrencias(String texto, String trecho) {
+        int total = 0;
+        int indice = 0;
+
+        while ((indice = texto.indexOf(trecho, indice)) != -1) {
+            total++;
+            indice += trecho.length();
+        }
+
+        return total;
     }
 }
